@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Telebirr SMS Simulator</title>
+    <style>
+        body { font-family: Arial, sans-serif; max-width: 800px; margin: 20px auto; padding: 20px; }
+        .form-container { background: #f9f9f9; padding: 20px; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
+        .form-group { margin-bottom: 15px; }
+        label { display: block; margin-bottom: 5px; color: #333; }
+        input, textarea { width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px; }
+        button { background: #007bff; color: white; border: none; padding: 10px 20px; border-radius: 4px; cursor: pointer; }
+        .sms-preview { margin: 20px 0; padding: 15px; background: #fff; border-left: 4px solid #007bff; }
+        .sender { border-color: #28a745; }
+        .receiver { border-color: #17a2b8; }
+    </style>
+</head>
+<body>
+    <div class="form-container">
+        <h2>Telebirr Transaction Simulator</h2>
+        
+        <div class="form-group">
+            <label>Sender's Name:</label>
+            <input type="text" id="senderName" value="Abel Mesfin">
+        </div>
+
+        <div class="form-group">
+            <label>Sender's Phone:</label>
+            <input type="text" id="senderPhone" value="251912345678">
+        </div>
+
+        <div class="form-group">
+            <label>Receiver's Name:</label>
+            <input type="text" id="receiverName" value="Desalegn Getachew">
+        </div>
+
+        <div class="form-group">
+            <label>Receiver's Phone:</label>
+            <input type="text" id="receiverPhone" value="251987654321">
+        </div>
+
+        <div class="form-group">
+            <label>Amount (ETB):</label>
+            <input type="number" id="amount" value="148.00" step="0.01">
+        </div>
+
+        <button onclick="generateSMS()">Generate SMS</button>
+        <button onclick="sendSMS()">Send SMS</button>
+
+        <div id="senderSms" class="sms-preview sender"></div>
+        <div id="receiverSms" class="sms-preview receiver"></div>
+    </div>
+
+    <script>
+    function maskPhoneNumber(number) {
+        return number.substring(0,4) + '****' + number.substring(8);
+    }
+
+    function generateTransactionId(prefix) {
+        return prefix + Math.random().toString(36).substr(2, 8).toUpperCase();
+    }
+
+    function generateSMS() {
+        const sender = {
+            name: document.getElementById('senderName').value,
+            phone: document.getElementById('senderPhone').value,
+            balance: 2.23
+        };
+
+        const receiver = {
+            name: document.getElementById('receiverName').value,
+            phone: document.getElementById('receiverPhone').value,
+            balance: 150.23
+        };
+
+        const amount = parseFloat(document.getElementById('amount').value);
+        const serviceFee = 0.87;
+        const vat = 0.13;
+        const date = new Date().toLocaleString('en-GB', {
+            day: '2-digit', month: '2-digit', year: 'numeric',
+            hour: '2-digit', minute: '2-digit', second: '2-digit'
+        });
+
+        // Generate SMS content
+        const senderSMS = `Dear ${sender.name}
+You have transferred ETB ${amount.toFixed(2)} to ${receiver.name} (${maskPhoneNumber(receiver.phone)}) on ${date}. 
+Transaction ID: ${generateTransactionId('TXS')}
+Service fee: ETB ${serviceFee.toFixed(2)}
+VAT (15%): ETB ${vat.toFixed(2)}
+Current balance: ETB ${sender.balance.toFixed(2)}
+Receipt: https://transactioninfo.ethiotelecom.et/receipt/${generateTransactionId('RCPT')}
+
+Thank you for using telebirr
+Ethio telecom`;
+
+        const receiverSMS = `Dear ${receiver.name}
+You received ETB ${amount.toFixed(2)} from ${sender.name} (${maskPhoneNumber(sender.phone)})
+Transaction ID: ${generateTransactionId('TXR')}
+Current balance: ETB ${receiver.balance.toFixed(2)}
+Transaction time: ${date}
+
+Thank you for using telebirr
+Ethio telecom`;
+
+        document.getElementById('senderSms').textContent = senderSMS;
+        document.getElementById('receiverSms').textContent = receiverSMS;
+    }
+
+    async function sendSMS() {
+        const formData = {
+            senderSMS: document.getElementById('senderSms').textContent,
+            receiverSMS: document.getElementById('receiverSms').textContent,
+            senderPhone: document.getElementById('senderPhone').value,
+            receiverPhone: document.getElementById('receiverPhone').value
+        };
+
+        try {
+            const response = await fetch('send-sms.php', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(formData)
+            });
+
+            const result = await response.json();
+            if (result.status === 'success') {
+                alert('SMS messages sent successfully!');
+            }
+        } catch (error) {
+            console.error('Error:', error);
+            alert('Error sending SMS');
+        }
+    }
+    </script>
+</body>
+</html>

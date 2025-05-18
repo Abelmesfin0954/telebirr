@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Payment Success</title>
+</head>
+<style>
+body {
+  font-family: 'Segoe UI', sans-serif;
+  background-color: #f4f6f9;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+}
+
+.receipt {
+  background-color: white;
+  padding: 30px;
+  width: 350px;
+  border-radius: 15px;
+  box-shadow: 0 8px 16px rgba(0,0,0,0.1);
+}
+
+.header {
+  text-align: center;
+  color: green;
+}
+
+.checkmark {
+  font-size: 40px;
+  margin: 10px 0;
+}
+
+.details {
+  margin-top: 20px;
+  color: #333;
+}
+
+.details p {
+  margin: 8px 0;
+  font-size: 15px;
+}
+
+.details span {
+  float: right;
+  font-weight: 500;
+}
+
+.footer {
+  text-align: center;
+  margin-top: 20px;
+  font-size: 14px;
+  color: #666;
+}
+
+</style>
+<body>
+  <div class="receipt">
+    <div class="header">
+      <h2>Payment Successful</h2>
+      <div class="checkmark">✔</div>
+    </div>
+    <div class="details">
+      <p><strong>Date:</strong> <span id="date"></span></p>
+      <p><strong>Time:</strong> <span id="time"></span></p>
+      <p><strong>Transaction ID:</strong> <span>#TXN12345678</span></p>
+      <p><strong>From:</strong> <span>Abel Mesfin</span></p>
+      <p><strong>To:</strong> <span>AMDS Service</span></p>
+      <p><strong>Amount:</strong> <span>ETB 1,000.00</span></p>
+    </div>
+    <div class="footer">
+      <p>Thank you for your payment!</p>
+    </div>
+  </div>
+<script>
+    window.onload = function () {
+  const now = new Date();
+  document.getElementById('date').innerText = now.toLocaleDateString();
+  document.getElementById('time').innerText = now.toLocaleTimeString();
+};
+
+</script>
+  <script src="script.js"></script>
+</body>
+</html>

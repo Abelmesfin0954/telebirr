@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Telebirr SMS Simulator - Ethiopia</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            max-width: 600px;
+            margin: 20px auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+
+        .container {
+            background: white;
+            padding: 25px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .ethio-header {
+            color: #046307;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+            color: #333;
+            font-weight: bold;
+        }
+
+        input {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+
+        .sms-preview {
+            background: #e8f5e9;
+            padding: 15px;
+            margin: 15px 0;
+            border-left: 4px solid #046307;
+            white-space: pre-wrap;
+            font-family: monospace;
+        }
+
+        button {
+            background: #046307;
+            color: white;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            width: 100%;
+            font-size: 16px;
+        }
+
+        .disclaimer {
+            color: #666;
+            font-size: 0.9em;
+            margin-top: 20px;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2 class="ethio-header">ቴሌብር �ስልምና ሲሚዩሌተር</h2>
+        
+        <div class="form-group">
+            <label for="senderPhone">የላኪ ስልክ ቁጥር (+251)</label>
+            <input type="tel" id="senderPhone" pattern="[9][0-9]{8}" placeholder="251912345678" required>
+        </div>
+
+        <div class="form-group">
+            <label for="receiverPhone">የተቀባይ ስልክ ቁጥር (+251)</label>
+            <input type="tel" id="receiverPhone" pattern="[9][0-9]{8}" placeholder="251987654321" required>
+        </div>
+
+        <div class="form-group">
+            <label for="amount">መጠን (ብር)</label>
+            <input type="number" id="amount" step="0.01" value="150.00" required>
+        </div>
+
+        <button onclick="generateEthiopianSMS()">ስልክ ላክ</button>
+
+        <div class="sms-preview" id="senderSms"></div>
+        <div class="sms-preview" id="receiverSms"></div>
+
+        <p class="disclaimer">
+            ይህ ሞዴል ብቻ ነው። ትክክለኛ የስልክ ላኪዎችን ለመጠቀም ከኢትዮ ቴሌኮም ፈቃድ ያስፈልጋል።
+        </p>
+    </div>
+
+    <script>
+    function formatEthiopianPhone(phone) {
+        // Convert to +251 format
+        const cleaned = phone.replace(/\D/g, '');
+        return cleaned.startsWith('251') ? 
+            `+${cleaned}` : 
+            `+251${cleaned.slice(cleaned.length - 9)}`;
+    }
+
+    function generateEthiopianSMS() {
+        // Get values
+        const senderPhone = formatEthiopianPhone(document.getElementById('senderPhone').value);
+        const receiverPhone = formatEthiopianPhone(document.getElementById('receiverPhone').value);
+        const amount = parseFloat(document.getElementById('amount').value).toFixed(2);
+
+        // Generate Ethiopian date/time
+        const now = new Date();
+        const ethioDate = now.toLocaleDateString('en-GB', {
+            day: '2-digit',
+            month: '2-digit',
+            year: 'numeric'
+        });
+        const ethioTime = now.toLocaleTimeString('en-GB', {
+            hour: '2-digit',
+            minute: '2-digit',
+            second: '2-digit'
+        });
+
+        // Generate SMS templates
+        const senderSMS = `Dear Customer,
+You have sent ETB ${amount} to ${receiverPhone.slice(0, 7)}****${receiverPhone.slice(-3)} 
+on ${ethioDate} at ${ethioTime}.
+Transaction ID: TEL${Date.now()}
+Service Charge: ETB 2.50
+Balance: ETB ${(Math.random() * 1000).toFixed(2)}
+
+Telebirr - Ethio telecom`;
+
+        const receiverSMS = `Dear Customer,
+You have received ETB ${amount} from ${senderPhone.slice(0, 7)}****${senderPhone.slice(-3)}
+on ${ethioDate} at ${ethioTime}.
+Transaction ID: TEL${Date.now() + 1}
+Balance: ETB ${(Math.random() * 5000).toFixed(2)}
+
+Telebirr - Ethio telecom`;
+
+        // Display results
+        document.getElementById('senderSms').textContent = senderSMS;
+        document.getElementById('receiverSms').textContent = receiverSMS;
+    }
+
+    // Input validation
+    document.getElementById('senderPhone').addEventListener('input', function(e) {
+        this.value = this.value.replace(/[^0-9]/g, '').slice(0, 12);
+    });
+
+    document.getElementById('receiverPhone').addEventListener('input', function(e) {
+        this.value = this.value.replace(/[^0-9]/g, '').slice(0, 12);
+    });
+    </script>
+</body>
+</html>

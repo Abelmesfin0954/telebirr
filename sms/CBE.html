@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>CBE Transaction Alert - Sender & Receiver</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 20px auto;
+            padding: 20px;
+            background: #f0f4f7;
+        }
+
+        .cbe-header {
+            background: #004a8d;
+            color: white;
+            padding: 15px;
+            border-radius: 5px;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+            color: #004a8d;
+            font-weight: bold;
+        }
+
+        input, select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+
+        .sms-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin: 20px 0;
+        }
+
+        .sms-preview {
+            background: white;
+            padding: 15px;
+            border-left: 4px solid #004a8d;
+            white-space: pre-wrap;
+            font-family: monospace;
+            min-height: 200px;
+        }
+
+        .sender-sms { border-color: #d32f2f; }
+        .receiver-sms { border-color: #2e7d32; }
+
+        button {
+            background: #004a8d;
+            color: white;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            width: 100%;
+            font-size: 16px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="cbe-header">
+            <h2>Commercial Bank of Ethiopia</h2>
+            <p>Funds Transfer Simulation</p>
+        </div>
+
+        <!-- Sender Information -->
+        <div class="form-group">
+            <label for="senderAccount">Sender Account (10 digits)</label>
+            <input type="text" id="senderAccount" placeholder="1000XXXXXX" maxlength="10" pattern="\d{10}">
+        </div>
+
+        <!-- Receiver Information -->
+        <div class="form-group">
+            <label for="receiverAccount">Receiver Account (10 digits)</label>
+            <input type="text" id="receiverAccount" placeholder="1000XXXXXX" maxlength="10" pattern="\d{10}">
+        </div>
+
+        <div class="form-group">
+            <label for="amount">Transfer Amount (ETB)</label>
+            <input type="number" id="amount" step="0.01" value="5000.00" min="1">
+        </div>
+
+        <button onclick="generateTransactionAlerts()">Generate Alerts</button>
+
+        <div class="sms-container">
+            <div class="sms-preview sender-sms" id="senderAlert"></div>
+            <div class="sms-preview receiver-sms" id="receiverAlert"></div>
+        </div>
+    </div>
+
+    <script>
+    function formatCbeAccount(account) {
+        return account.slice(0, 4) + 'XXXX' + account.slice(-2);
+    }
+
+    function generateTransactionAlerts() {
+        // Get input values
+        const senderAcc = document.getElementById('senderAccount').value;
+        const receiverAcc = document.getElementById('receiverAccount').value;
+        const amount = parseFloat(document.getElementById('amount').value).toFixed(2);
+
+        // Generate transaction details
+        const txDate = new Date().toLocaleDateString('en-GB', {
+            day: '2-digit',
+            month: 'short',
+            year: 'numeric'
+        }).toUpperCase();
+
+        const txTime = new Date().toLocaleTimeString('en-GB', {
+            hour: '2-digit',
+            minute: '2-digit'
+        });
+
+        const txId = `CBE${Date.now().toString().slice(-8)}`;
+        const senderBalance = (Math.random() * 1000000).toFixed(2);
+        const receiverBalance = (Math.random() * 500000).toFixed(2);
+
+        // Sender SMS
+        const senderSMS = `Commercial Bank of Ethiopia
+DEBIT ALERT
+Acc: ${formatCbeAccount(senderAcc)}
+Amount: ETB ${amount}
+To: ${formatCbeAccount(receiverAcc)}
+Date: ${txDate} ${txTime}
+Ref: ${txId}
+Balance: ETB ${senderBalance}
+Call 951 for assistance`;
+
+        // Receiver SMS
+        const receiverSMS = `Commercial Bank of Ethiopia
+CREDIT ALERT
+Acc: ${formatCbeAccount(receiverAcc)}
+Amount: ETB ${amount}
+From: ${formatCbeAccount(senderAcc)}
+Date: ${txDate} ${txTime}
+Ref: ${txId}
+Balance: ETB ${receiverBalance}
+Visit cbe.com.et for details`;
+
+        // Display alerts
+        document.getElementById('senderAlert').textContent = senderSMS;
+        document.getElementById('receiverAlert').textContent = receiverSMS;
+    }
+
+    // Input validation
+    document.querySelectorAll('input[type="text"]').forEach(input => {
+        input.addEventListener('input', function(e) {
+            this.value = this.value.replace(/\D/g, '').slice(0, 10);
+        });
+    });
+
+    document.getElementById('amount').addEventListener('input', function(e) {
+        this.value = this.value.replace(/[^0-9.]/g, '');
+    });
+    </script>
+</body>
+</html>
